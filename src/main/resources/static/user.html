@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('userdash.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .content {
+            background-color: rgba(39, 38, 38, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1200px;
+        }
+        .content h1 {
+            margin-top: 0;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button.book-btn {
+            background-color: #008CBA;
+        }
+        .button.book-btn:hover {
+            background-color: #005f73;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #fff;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #333;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            color: #000;
+        }
+        .modal-header {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .modal-body {
+            padding: 20px 0;
+        }
+        .modal-footer {
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            text-align: right;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Success Notification Styles */
+        .success-notification {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            width: auto;
+            max-width: 90%;
+        }
+        .button.history-btn {
+    background-color: #f39c12;
+}
+.button.history-btn:hover {
+    background-color: #e67e22;
+}
+
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Welcome to the User Page</h1>
+        <p>You are successfully logged in!</p>
+
+        <!-- Search Bus Button -->
+        <button class="button book-btn" onclick="redirectToBookPage()">Search Bus</button>
+        <button class="button history-btn" onclick="redirectToHistoryPage()">Booking History</button>
+        <button class="button" onclick="redirectToUpdatePage()">Update Details</button>
+        <!-- Table for displaying bus details -->
+        <div id="busDetails">
+            <h2>Available Bus Details</h2>
+            <table id="busTable">
+                <thead>
+                    <tr>
+                        <th>Bus Name</th>
+                        <th>Bus No</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Arrival Time</th>
+                        <th>Reach Time</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Bus details will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Amount Input -->
+    <div id="amountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Enter Amount</h2>
+            </div>
+            <div class="modal-body">
+                <label for="amountInput">Amount:</label>
+                <input type="number" id="amountInput" placeholder="Enter amount" min="0" step="0.01">
+            </div>
+            <div class="modal-footer">
+                <button class="button" onclick="confirmBooking()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div id="successNotification" class="success-notification">
+        Payment Successful!
+    </div>
+
+    <script>
+        const apiUrl = '/api/bus-details'; // Adjust this URL as necessary
+
+        // Function to fetch bus details from the server
+        function fetchBusDetails() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    populateTable(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching bus details:', error);
+                });
+        }
+
+        // Function to populate the table with bus details
+        function populateTable(buses) {
+            const tableBody = document.querySelector('#busTable tbody');
+            tableBody.innerHTML = ''; // Clear existing rows
+            if (buses.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8">No bus details available.</td></tr>';
+            } else {
+                buses.forEach(bus => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${bus.busName}</td>
+                        <td>${bus.busNo}</td>
+                        <td>${bus.fromLocation}</td>
+                        <td>${bus.toLocation}</td>
+                        <td>${bus.arrivalTime}</td>
+                        <td>${bus.reachTime}</td>
+                        <td>${bus.amount.toFixed(2)}</td> <!-- Display amount -->
+                        <td>
+                            <button id="book-btn-${bus.id}" class="button book-btn" onclick="openBookingModal(${bus.id}, this)">Book</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        function redirectToHistoryPage() {
+    window.location.href = 'history.html';
+}
+
+        // Function to redirect to book.html page
+        function redirectToBookPage() {
+            window.location.href = 'book.html';
+        }
+        function redirectToUpdatePage() {
+            window.location.href = 'update.html';
+        }
+        // Function to open the booking modal
+        function openBookingModal(busId, button) {
+            const row = button.closest('tr');
+            const busName = row.children[0].textContent.trim();
+            const busNo = row.children[1].textContent.trim();
+            const fromLocation = row.children[2].textContent.trim();
+            const toLocation = row.children[3].textContent.trim();
+            const arrivalTime = row.children[4].textContent.trim();
+            const reachTime = row.children[5].textContent.trim();
+            const amount = row.children[6].textContent.trim();
+
+            // Create a query string with all bus details
+            const queryString = new URLSearchParams({
+                id: busId,
+                name: busName,
+                number: busNo,
+                from: fromLocation,
+                to: toLocation,
+                arrivalTime: arrivalTime,
+                reachTime: reachTime,
+                amount: amount
+            }).toString();
+
+            // Debugging output
+            console.log(`Redirecting to payment page with query: ${queryString}`);
+
+            // Redirect to the payment page with all bus details
+            window.location.href = `payment.html?${queryString}`;
+        }
+
+        // Function to close the booking modal
+        function closeModal() {
+            document.getElementById('amountModal').style.display = 'none';
+        }
+
+        // Initial fetch to display all bus details
+        fetchBusDetails();
+    </script>
+</body>
+</html>

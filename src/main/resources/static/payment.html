@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <style>
+ body {
+    font-family: Arial, sans-serif;
+    background: url('pay.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.content {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+}
+
+.content h1 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-right: 10px; /* Space between label and input */
+    width: 150px; /* Adjust width as needed */
+    text-align: right; /* Align text to the right */
+}
+
+.form-group input {
+    padding: 6px 10px; /* Reduced padding */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: rgba(104, 104, 104, 0.5);
+    color: #f8f0f0;
+    width: calc(100% - 160px); /* Adjust width to fit within the container */
+    max-width: 100%; /* Full width of the container */
+    font-size: 14px; /* Reduced font size */
+}
+
+.button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    color: #000;
+    border-radius: 8px;
+}
+
+.modal-header {
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 20px 0;
+}
+
+.modal-footer {
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+}
+
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Payment Details</h1>
+        <form id="paymentForm">
+            <div class="form-group">
+                <label for="busName">Bus Name:</label>
+                <input type="text" id="busName" readonly>
+            </div>
+            <div class="form-group">
+                <label for="busNo">Bus No:</label>
+                <input type="text" id="busNo" readonly>
+            </div>
+            <div class="form-group">
+                <label for="fromLocation">From:</label>
+                <input type="text" id="fromLocation" readonly>
+            </div>
+            <div class="form-group">
+                <label for="toLocation">To:</label>
+                <input type="text" id="toLocation" readonly>
+            </div>
+            <div class="form-group">
+                <label for="arrivalTime">Arrival Time:</label>
+                <input type="text" id="arrivalTime" readonly>
+            </div>
+            <div class="form-group">
+                <label for="reachTime">Reach Time:</label>
+                <input type="text" id="reachTime" readonly>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="text" id="amount" readonly>
+            </div>
+            <button type="button" class="button" onclick="showAmountModal()">Proceed to Payment</button>
+        </form>
+    </div>
+
+    <!-- Modal for Entering Amount -->
+    <div id="amountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeAmountModal()">&times;</span>
+                <h2>Enter Payment Amount</h2>
+            </div>
+            <div class="modal-body">
+                <label for="amountInput">Amount:</label>
+                <input type="number" id="amountInput" placeholder="Enter amount" min="0" step="0.01">
+            </div>
+            <div class="modal-footer">
+                <button class="button" onclick="confirmPayment()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                busName: params.get('name'),
+                busNo: params.get('number'),
+                fromLocation: params.get('from'),
+                toLocation: params.get('to'),
+                arrivalTime: params.get('arrivalTime'),
+                reachTime: params.get('reachTime'),
+                amount: params.get('amount')
+            };
+        }
+
+        function populateForm(data) {
+            document.getElementById('busName').value = data.busName || '';
+            document.getElementById('busNo').value = data.busNo || '';
+            document.getElementById('fromLocation').value = data.fromLocation || '';
+            document.getElementById('toLocation').value = data.toLocation || '';
+            document.getElementById('arrivalTime').value = data.arrivalTime || '';
+            document.getElementById('reachTime').value = data.reachTime || '';
+            document.getElementById('amount').value = data.amount || '';
+        }
+
+        function showAmountModal() {
+            document.getElementById('amountModal').style.display = 'block';
+        }
+
+        function closeAmountModal() {
+            document.getElementById('amountModal').style.display = 'none';
+        }
+
+        async function confirmPayment() {
+            const enteredAmount = parseFloat(document.getElementById('amountInput').value);
+            const displayedAmount = parseFloat(document.getElementById('amount').value);
+
+            if (enteredAmount === displayedAmount) {
+                // Prepare the data to send to the server
+                const paymentData = {
+                    busName: document.getElementById('busName').value,
+                    busNo: document.getElementById('busNo').value,
+                    fromLocation: document.getElementById('fromLocation').value,
+                    toLocation: document.getElementById('toLocation').value,
+                    arrivalTime: document.getElementById('arrivalTime').value,
+                    reachTime: document.getElementById('reachTime').value,
+                    amount: displayedAmount
+                };
+
+                try {
+                    // Send data to the server
+                    const response = await fetch('http://localhost:8080/api/payments/confirm-payment', { // Ensure this matches your backend URL
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(paymentData)
+                    });
+
+                    if (response.ok) {
+                        alert('Payment confirmed successfully.');
+                    } else {
+                        const errorData = await response.json();
+                        alert('Error confirming payment: ' + errorData.message);
+                    }
+                } catch (error) {
+                    alert('Network error: ' + error.message);
+                }
+                
+                closeAmountModal();
+            } else {
+                alert('Entered amount does not match the displayed amount.');
+            }
+        }
+
+        // On page load, populate the form with query parameters
+        document.addEventListener('DOMContentLoaded', () => {
+            const queryParams = getQueryParams();
+            populateForm(queryParams);
+        });
+    </script>
+</body>
+</html>

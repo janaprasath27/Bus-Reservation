@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Details Admin Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('admindash.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .content {
+            background-color: rgba(109, 107, 107, 0.7);
+            padding: 15px; /* Reduced padding */
+            border-radius: 8px;
+            width: 70%;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+        h1 {
+            margin-bottom: 10px; /* Reduced margin */
+            color: #FFD700;
+            font-size: 24px; /* Adjusted font size */
+        }
+        p {
+            margin-bottom: 10px; /* Reduced margin */
+            font-size: 16px; /* Adjusted font size */
+        }
+        form {
+            margin-bottom: 15px; /* Reduced margin */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            max-width: 500px;
+            padding: 6px; /* Reduced padding */
+            margin: 6px 0; /* Reduced margin */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #443a3a;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px; /* Adjusted font size */
+        }
+        input::placeholder {
+            color: #aaa;
+            opacity: 1;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 6px 12px; /* Reduced padding */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px; /* Adjusted font size */
+            margin-top: 10px;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #fff;
+        }
+        th, td {
+            padding: 6px; /* Reduced padding */
+            text-align: left;
+            color: #ddd;
+            font-size: 14px; /* Adjusted font size */
+        }
+        th {
+            background-color: #555;
+        }
+        tr:nth-child(even) {
+            background-color: #444;
+        }
+        tr:nth-child(odd) {
+            background-color: #333;
+        }
+        .button {
+            margin: 0 5px;
+            padding: 6px 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .delete-btn {
+            background-color: #f44336;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        .message {
+            padding: 8px; /* Reduced padding */
+            margin-bottom: 15px; /* Reduced margin */
+            border-radius: 5px;
+            font-size: 14px; /* Adjusted font size */
+        }
+        .success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Admin Page</h1>
+        <p>You are successfully logged in!</p>
+        <div id="message" class="message"></div>
+        <form id="busForm">
+            <input type="hidden" id="busId">
+            <input type="text" id="busName" placeholder="Bus Name" required>
+            <input type="number" id="busNo" placeholder="Bus No" required>
+            <input type="text" id="fromLocation" placeholder="From" required>
+            <input type="text" id="toLocation" placeholder="To" required>
+            <input type="text" id="arrivalTime" placeholder="Arrival Time" required>
+            <input type="text" id="reachTime" placeholder="Reach Time" required>
+            <input type="number" step="0.01" id="amount" placeholder="Amount" required>
+            <button type="submit" id="submitBtn">Add Bus</button>
+        </form>
+        <table id="busTable">
+            <thead>
+                <tr>
+                    <th>Bus Name</th>
+                    <th>Bus No</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Arrival Time</th>
+                    <th>Reach Time</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiUrl = '/api/bus-details'; // Ensure this is correct
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchBusDetails();
+
+            document.getElementById('busForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const busDetails = {
+                    busName: document.getElementById('busName').value,
+                    busNo: document.getElementById('busNo').value,
+                    fromLocation: document.getElementById('fromLocation').value,
+                    toLocation: document.getElementById('toLocation').value,
+                    arrivalTime: document.getElementById('arrivalTime').value,
+                    reachTime: document.getElementById('reachTime').value,
+                    amount: parseFloat(document.getElementById('amount').value) // Handle amount field
+                };
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(busDetails)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('message').innerHTML = 'Bus registered successfully!';
+                        document.getElementById('message').className = 'message success';
+                        document.getElementById('busForm').reset();
+                        fetchBusDetails();
+                    } else {
+                        document.getElementById('message').innerHTML = 'Failed to register bus. Please try again.';
+                        document.getElementById('message').className = 'message error';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('message').innerHTML = 'An error occurred. Please try again.';
+                    document.getElementById('message').className = 'message error';
+                });
+            });
+        });
+
+        function fetchBusDetails() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#busTable tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    if (data.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="8">No bus details available.</td></tr>';
+                    } else {
+                        data.forEach(bus => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${bus.busName}</td>
+                                <td>${bus.busNo}</td>
+                                <td>${bus.fromLocation}</td>
+                                <td>${bus.toLocation}</td>
+                                <td>${bus.arrivalTime}</td>
+                                <td>${bus.reachTime}</td>
+                                <td>${bus.amount.toFixed(2)}</td> <!-- Display amount -->
+                                <td>
+                                    <button class="button delete-btn" data-id="${bus.id}" onclick="deleteBus(${bus.id})">Delete</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching bus details:', error);
+                    document.getElementById('message').innerHTML = 'An error occurred while fetching bus details.';
+                    document.getElementById('message').className = 'message error';
+                });
+        }
+
+        function deleteBus(id) {
+            fetch(`${apiUrl}/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('message').innerHTML = 'Bus deleted successfully!';
+                    document.getElementById('message').className = 'message success';
+                    fetchBusDetails();
+                } else {
+                    document.getElementById('message').innerHTML = 'Failed to delete bus. Please try again.';
+                    document.getElementById('message').className = 'message error';
+                }
+            })
+            .catch(() => {
+                document.getElementById('message').innerHTML = 'An error occurred. Please try again.';
+                document.getElementById('message').className = 'message error';
+            });
+        }
+    </script>
+</body>
+</html>

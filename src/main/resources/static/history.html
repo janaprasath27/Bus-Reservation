@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('histroy.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .content {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1200px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #fff;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #333;
+        }
+        .paid {
+            background-color: #4CAF50; /* Green color for paid status */
+            color: white;
+            text-align: center;
+        }
+        .button{
+            background-color: #4CAF50;
+        }
+        .button-btn:hover {
+    background-color: #e67e22;
+}
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Payment History</h1>
+        <button class="button" onclick="redirectToPage()">Back</button>
+        <table id="paymentTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Bus Name</th>
+                    <th>Bus No</th>
+                    <th>From Location</th>
+                    <th>To Location</th>
+                    <th>Arrival Time</th>
+                    <th>Reach Time</th>
+                    <th>Amount</th>
+                    <th>Payment Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Payment history will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const apiUrl = '/api/payments'; // Adjust this URL as necessary
+
+        function fetchPayments() {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    populateTable(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching payment history:', error);
+                });
+        }
+
+        function populateTable(payments) {
+            const tableBody = document.querySelector('#paymentTable tbody');
+            tableBody.innerHTML = ''; // Clear existing rows
+            if (payments.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8">No payment history available.</td></tr>';
+            } else {
+                payments.forEach(payment => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${payment.id}</td>
+                        <td>${payment.busName}</td>
+                        <td>${payment.busNo}</td>
+                        <td>${payment.fromLocation}</td>
+                        <td>${payment.toLocation}</td>
+                        <td>${payment.arrivalTime}</td>
+                        <td>${payment.reachTime}</td>
+                        <td>${payment.amount.toFixed(2)}</td>
+                        <td class="paid">paid</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        function redirectToPage() {
+            window.location.href = 'user.html';
+        }
+
+        // Fetch payments on page load
+        document.addEventListener('DOMContentLoaded', fetchPayments);
+    </script>
+</body>
+</html>

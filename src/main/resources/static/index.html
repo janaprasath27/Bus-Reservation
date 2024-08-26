@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Reservation System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center; /* Centers text and inline elements */
+            background: url('index.jpg') no-repeat center center fixed;
+             /* Set your background image here */
+            background-size: cover; /* Ensures the image covers the entire background */
+            color: #000000; /* Default text color to contrast with background */
+            text-align: center; /* Centers text and inline elements */
+        }
+        .nav-container {
+            background-color: rgb(112, 114, 108,0.5);
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .nav-container ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center; /* Centers the navigation links horizontally */
+        }
+        .nav-container li {
+            margin: 0 10px; /* Spacing between links */
+        }
+        .nav-container a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: inline-block;
+        }
+        .nav-container a:hover {
+            background-color: #575757;
+            border-radius: 4px;
+        }
+        .hero {
+            color: #000000;
+            padding: 50px 20px;
+            text-align: center;
+            margin-top: 60px; /* Ensures content doesn't overlap with fixed nav */
+        }
+        .container {
+            padding: 20px;
+            margin-top: 20px; /* Ensures content starts below the hero section */
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-container">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="admin-login.html">Admin Login</a></li>
+            <li><a href="user-login.html">User Login</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </div>
+    
+    <div class="hero">
+        <h1>Welcome to the Bus Reservation System</h1>
+        <p>Book your travel with ease.</p>
+    </div>
+    
+    <div class="container">
+        <!-- Main content of the page goes here -->
+        <p>Explore our features and make your reservations today!</p>
+    </div>
+</body>
+</html>
